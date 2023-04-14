@@ -12,11 +12,11 @@ class Customer {
         this.budget = budget;
         
         if (id === "" ||
-            typeof id     === 'undefined') { this.id     = ++last_customer_id;  }
+            typeof id     === 'undefined') { this.id     = ++last_customer_id;   }
         if (name === "" ||
             typeof name   === 'undefined') { this.name   = "Невідомий замовник"; }
         if (budget === "" ||
-            typeof budget === 'undefined') { this.budget = "Не встановлено";  }
+            typeof budget === 'undefined') { this.budget = 0;                    }
     
     }
 }
@@ -90,7 +90,7 @@ function edit_customer (id, new_name, new_budget) {
         let customer = customers_list[z];
 
         if (customer.id === id) { customer.name = new_name;
-                                  customer.hospital = new_budget;
+                                  customer.budget = new_budget;
                                   return 1; }
 
     }

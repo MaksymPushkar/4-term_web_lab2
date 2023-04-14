@@ -16,33 +16,24 @@
       <div class="modal-body">
         <form>
 
-          <!-- Прізвище, ім’я, по батькові -->
-          <span class="fs-5">Прізвище, ім’я, по батькові</span>
+          <!-- Назва -->
+          <span class="fs-5">Назва</span>
           <input class="form-control fs-5 bg-dark text-light border-primary mb-2" id="customer_name" type="text"
-            placeholder="П.І.Б.">
+            placeholder="Назва">
 
+              <!-- Бюджет -->
+              <span class="fs-5">Бюджет</span>
+              <input class="form-control fs-5 bg-dark text-light border-primary" id="customer_budget" type="number"
+                placeholder="Бюджет">
           <div class="row gx-3">
             <div class="col-12 col-sm-2">
 
-              <!-- Вік -->
-              <span class="fs-5">Вік</span>
-              <input class="form-control fs-5 bg-dark text-light border-primary" id="customer_age" type="number"
-                placeholder="Вік" oninput="set_age(this)">
             </div>
 
             <div class="col-12 mb-2 d-block d-sm-none"></div>
             <div class="col-12 col-sm-10">
 
-              <!-- Лікарня -->
-              <span class="fs-5">Лікарня</span>
-              <div class="dropdown">
-                <button class="btn btn-outline-primary fs-5 w-100 dropdown-toggle" type="button" id="customer_hospital"
-                  data-bs-toggle="dropdown" aria-expanded="false">Виберіть лікарню</button>
-                <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="customer_hospital"
-                  id="customer_hospitals_list">
-                  <li><span class="dropdown-item" onclick="set_hospital(this)">. . .</span></li>
-                </ul>
-              </div>
+              
 
             </div>
           </div>

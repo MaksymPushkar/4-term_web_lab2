@@ -63,10 +63,10 @@ exp.get("/hospitals", (req, res) => {
 
 // ... для сторінки "Лікарі"
 exp.get("/customers", (req, res) => {
-  res.render("pages/customers", { title: "Лікарі",
+  res.render("pages/customers", { title: "Замовники",
                                 use_db: USE_DB,
                                 server_port: SERVER_PORT,
-                                add_button: "Додати нового лікаря",
+                                add_button: "Додати нового замоника",
                                 page_id: "2" });
 });
 

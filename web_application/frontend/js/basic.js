@@ -18,9 +18,8 @@ async function create_element() {
       case "hospital": $("#hospital_title").text("Додавання нової лікарні");
                        $("#hospital_yes").text("Додати");
                        break;
-      case "doctor":   $("#doctor_title").text("Додавання нового лікаря");
-                       $("#doctor_yes").text("Додати");
-                       prepare_hospitals_for_dropdown(target);
+      case "customer": $("#customer_title").text("Додавання нового замовника");
+                       $("#customer_yes").text("Додати");
                        break;
       case "patient":  $("#patient_title").text("Додавання нового пацієнта");
                        $("#patient_yes").text("Додати");
@@ -54,16 +53,14 @@ async function edit_element (element) {
                        $("#hospital_name").val(item.name);
                        $("#hospital_address").val(item.address);
                        break;
-      case "doctor":   item = get_doctor_by_id(id);
-                       $("#doctor_age").val(item.age);
-                       $("#doctor_name").val(item.name);
-                       $("#doctor_hospital").text(item.hospital);
-                       prepare_hospitals_for_dropdown(target);
+      case "customer": item = get_customer_by_id(id);
+                       $("#customer_budget").val(item.budget);
+                       $("#customer_name").val(item.name);
                        break;
       case "patient":  item = get_patient_by_id(id);
                        $("#patient_age").val(item.age);
                        $("#patient_name").val(item.name);
-                       $("#patient_doctor").text(item.doctor);
+                       $("#patient_customer").text(item.customer);
                        $("#patient_hospital").text(item.hospital);
                        prepare_hospitals_for_dropdown(target);
                        break;
@@ -87,7 +84,7 @@ function find_element (element) {
    switch (target) {
 
       case "hospitals":      search_list = find_hospitals(search);      break;
-      case "doctors":        search_list = find_doctors(search);        break;
+      case "customers":      search_list = find_customers(search);      break;
       case "patients":       search_list = find_patients(search);       break;
       case "cured_patients": search_list = find_patients(search, true); break;
 
@@ -114,9 +111,9 @@ function delete_element (item) {
          button = "Видалити";
          break;
 
-      case "doctors":
-         message = "Ви дійсно хочете звільнити цього лікаря";
-         button = "Звільнити";
+      case "customers":
+         message = "Ви дійсно хочете видалити цього замовника";
+         button = "Видалити";
          break;
 
       case "patients":
@@ -154,7 +151,7 @@ function display_data (search_list) {
 
       case "hospitals":      data = get_hospitals_list();
                              break;
-      case "doctors":        data = get_doctors_list();
+      case "customers":      data = get_customers_list();
                              break;
       case "patients":       data = get_patients_list();
                              additional_attr = "false, ";
@@ -202,7 +199,7 @@ function display_hospitals_data (data) {
 }
 
 // Відобразити дані про усіх лікарів
-function display_doctors_data (data) {
+function display_customers_data (data) {
 
    for (let element of data) {
       
@@ -210,8 +207,7 @@ function display_doctors_data (data) {
      `<tr>
          <td> <span class="m-2">${element.id}</span> </td>
          <td>${element.name}</td>
-         <td class="fit"> <span class="m-2">${element.age}</span> </td>
-         <td>${element.hospital}</td>
+         <td> <span class="m-2">${element.budget}</span> </td>
          <td>${get_icon_code()}</td>
       </tr>`;
 
@@ -230,7 +226,7 @@ function display_patients_data (is_cured, data) {
          <td> <span class="m-2">${element.id}</span> </td>
          <td>${element.name}</td>
          <td class="fit"> <span class="m-2">${element.age}</span> </td>
-         <td>${element.doctor}</td>
+         <td>${element.customer}</td>
          <td>${element.hospital}</td>
          <td>${get_icon_code(is_cured)}</td>
       </tr>`;
@@ -301,17 +297,14 @@ function modal_update_hospitals (added_new, id) {
 
 }
 
-// Додавання нового лікаря або редагування існуючого
-function modal_update_doctors (added_new, id) {
+// Додавання нового замовника або редагування існуючого
+function modal_update_customers (added_new, id) {
 
-   let name     = $("#doctor_name").val();
-   let age      = $("#doctor_age").val();
-   let hospital = $("#doctor_hospital").text();
+   let name    = $("#customer_name").val();
+   let budget  = $("#customer_budget").val();
 
-   hospital = hospital === "Виберіть лікарню" ? "Не встановлено" : hospital;
-
-   if (added_new) { add_doctor(name, age, hospital);      }
-   else           { edit_doctor(id, name, age, hospital); }
+   if (added_new) { add_customer(name, budget);      }
+   else           { edit_customer(id, name, budget); }
 
    display_data();
    clear_input();
@@ -324,14 +317,14 @@ function modal_update_patients (added_new, id) {
 
    let name     = $("#patient_name").val();
    let age      = $("#patient_age").val();
-   let doctor   = $("#patient_doctor").text();
+   let customer = $("#patient_customer").text();
    let hospital = $("#patient_hospital").text();
 
-   doctor   = doctor   === "Виберіть лікаря"  ? "Не призначено"  : doctor;
+   customer = customer === "Виберіть лікаря"  ? "Не призначено"  : customer;
    hospital = hospital === "Виберіть лікарню" ? "Не встановлено" : hospital;
 
-   if (added_new) { add_patient(name, age, doctor, hospital);      }
-   else           { edit_patient(id, name, age, doctor, hospital); }
+   if (added_new) { add_patient(name, age, customer, hospital);      }
+   else           { edit_patient(id, name, age, customer, hospital); }
 
    display_data();
    clear_input();
@@ -364,20 +357,20 @@ function set_hospital (element) {
 
    hospital = hospital === ". . ." ? "Виберіть лікарню" : hospital;
 
-   if (target === "doctors") { $("#doctor_hospital").text(hospital);  }
+   if (target === "customers") { $("#customer_hospital").text(hospital);  }
    else                      { $("#patient_hospital").text(hospital);
-                               prepare_doctors_for_dropdown();        }
+                               prepare_customers_for_dropdown();        }
 
 }
 
 // Вибір лікаря у випадаючому списку
-function set_doctor (element) {
+function set_customer (element) {
 
-   let doctor = $(element).text();
+   let customer = $(element).text();
 
-   doctor = doctor === ". . ." ? "Виберіть лікаря" : doctor;
+   customer = customer === ". . ." ? "Виберіть лікаря" : customer;
 
-   $("#patient_doctor").text(doctor);
+   $("#patient_customer").text(customer);
 
 }
 
@@ -406,16 +399,16 @@ function prepare_hospitals_for_dropdown (target) {
 }
 
 // Підготовуємо список доступних лікарів у випадаючому меню
-function prepare_doctors_for_dropdown() {
+function prepare_customers_for_dropdown() {
 
-   $("#patient_doctor").text("Виберіть лікаря");
+   $("#patient_customer").text("Виберіть лікаря");
 
-   let list = $("#patient_doctors_list");
+   let list = $("#patient_customers_list");
    let hospital = $("#patient_hospital").text();
    let divider_is_added = false;
 
    // Отримуємо інформацію про усіх лікарів
-   get_data("doctors").then((result) => {
+   get_data("customers").then((result) => {
 
       if (result.length != 0) {
          
@@ -429,7 +422,7 @@ function prepare_doctors_for_dropdown() {
                                         divider_is_added = true; }
 
                list.append(`<li><span class="dropdown-item" ` +
-                           `onclick="set_doctor(this)">${item.name}</span></li>`);
+                           `onclick="set_customer(this)">${item.name}</span></li>`);
             }
          }
       }
@@ -445,7 +438,7 @@ function clear_table (table_is_empty) {
 
    let target = location.pathname.substring(1);
    let span = (target === "hospitals") ? 4 :
-              (target === "doctors") ? 5 : 6;
+              (target === "customers") ? 5 : 6;
 
    $("#table tbody").empty();
 
@@ -469,16 +462,14 @@ function clear_input() {
       case "hospitals": $("#hospital_name").val("");
                         $("#hospital_address").val("");
                         break;
-      case "doctors":   $("#doctor_name").val("");
-                        $("#doctor_age").val("");
-                        $("#doctor_hospital").text("Виберіть лікарню");
-                        $("#doctor_hospitals_list").find("li:not(:first)").remove();
+      case "customers": $("#customer_name").val("");
+                        $("#customer_budget").val("");
                         break;
       case "patients":  $("#patient_name").val("");
                         $("#patient_age").val("");
-                        $("#patient_doctor").text("Виберіть лікаря");
+                        $("#patient_customer").text("Виберіть лікаря");
                         $("#patient_hospital").text("Виберіть лікарню");
-                        $(`#patient_doctors_list`).find("li:not(:first)").remove();
+                        $(`#patient_customers_list`).find("li:not(:first)").remove();
                         $(`#patient_hospitals_list`).find("li:not(:first)").remove();
                         break;
    }

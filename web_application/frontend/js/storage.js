@@ -69,7 +69,7 @@ async function server_PUT (req, array) {
 
    switch (req) {
       case "/set_hospitals":      collection = 1; break;
-      case "/set_doctors":        collection = 2; break;
+      case "/set_customers":      collection = 2; break;
       case "/set_patients":       collection = 3; break;
       case "/set_cured_patients": collection = 4; break;
       case "/set_identificators": collection = 5; break;
@@ -141,8 +141,8 @@ function save_data_in_local_storage() {
          localStorage.setItem('hospitals', JSON.stringify(get_hospitals_list()));
          break;
 
-      case "doctors":
-         localStorage.setItem('doctors', JSON.stringify(get_doctors_list()));
+      case "customers":
+         localStorage.setItem('customers', JSON.stringify(get_customers_list()));
          break;
 
       case "patients":
@@ -157,8 +157,8 @@ function save_data_in_local_storage() {
    }
 
    let identificators = [{ "name":"last_hospital_id","value":last_hospital_id },
-                         { "name":"last_doctor_id",  "value":last_doctor_id   },
-                         { "name":"last_patient_id", "value":last_patient_id  }];
+                         { "name":"last_customer_id","value":last_customer_id },
+                         { "name":"last_patient_id" ,"value":last_patient_id  }];
 
    localStorage.setItem('identificators', JSON.stringify(identificators));
 
@@ -175,8 +175,8 @@ function save_data_in_data_base() {
          server_PUT("/set_hospitals", get_hospitals_list());
          break;
 
-      case "doctors":
-         server_PUT("/set_doctors", get_doctors_list());
+      case "customers":
+         server_PUT("/set_customers", get_customers_list());
          break;
 
       case "patients":
@@ -191,7 +191,7 @@ function save_data_in_data_base() {
    }
 
    let identificators = [{ "name":"last_hospital_id","value":last_hospital_id },
-                         { "name":"last_doctor_id",  "value":last_doctor_id   },
+                         { "name":"last_customer_id","value":last_customer_id },
                          { "name":"last_patient_id", "value":last_patient_id  }];
 
    server_PUT("/set_identificators", identificators);
@@ -221,9 +221,9 @@ async function load_data_from_local_storage() {
          set_hospitals_list(item ? item : []);
          break;
 
-      case "doctors":
-         item = JSON.parse(localStorage.getItem("doctors"));
-         set_doctors_list(item ? item : []);
+      case "customers":
+         item = JSON.parse(localStorage.getItem("customers"));
+         set_customers_list(item ? item : []);
          break;
 
       case "patients":
@@ -245,7 +245,7 @@ async function load_data_from_local_storage() {
 
    for (let item of identificators) {
       if (item.name === "last_hospital_id") { last_hospital_id = item.value; }
-      if (item.name === "last_doctor_id")   { last_doctor_id   = item.value; }
+      if (item.name === "last_customer_id") { last_customer_id = item.value; }
       if (item.name === "last_patient_id")  { last_patient_id  = item.value; }
    }
 }
@@ -262,9 +262,9 @@ async function load_data_from_data_base() {
             { set_hospitals_list(res); });
          break;
 
-      case "doctors":
-         await server_GET("/get_doctors").then((res) =>
-            { set_doctors_list(res); });
+      case "customers":
+         await server_GET("/get_customers").then((res) =>
+            { set_customers_list(res); });
          break;
 
       case "patients":
@@ -284,8 +284,8 @@ async function load_data_from_data_base() {
    await server_GET("/get_last_hospital_id").then((res) =>
       { if (res && res.length > 0) { last_hospital_id = res[0].value; }});
 
-   await server_GET("/get_last_doctor_id").then((res) =>
-      { if (res && res.length > 0) { last_doctor_id = res[0].value; }});
+   await server_GET("/get_last_customer_id").then((res) =>
+      { if (res && res.length > 0) { last_customer_id = res[0].value; }});
 
    await server_GET("/get_last_patient_id").then((res) =>
       { if (res && res.length > 0) { last_patient_id = res[0].value; }});
