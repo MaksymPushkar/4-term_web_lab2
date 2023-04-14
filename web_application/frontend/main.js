@@ -62,8 +62,8 @@ exp.get("/hospitals", (req, res) => {
 });
 
 // ... для сторінки "Лікарі"
-exp.get("/doctors", (req, res) => {
-  res.render("pages/doctors", { title: "Лікарі",
+exp.get("/customers", (req, res) => {
+  res.render("pages/customers", { title: "Лікарі",
                                 use_db: USE_DB,
                                 server_port: SERVER_PORT,
                                 add_button: "Додати нового лікаря",
