@@ -8,11 +8,6 @@ async function create_element() {
    let target = location.pathname.substring(1);
    target = target.substring(0, target.length - 1);
 
-   if (target === "cured_patient") {
-      modal_delete_cured_patients();
-      return;
-   }
-
    switch (target) {
 
       case "hospital": $("#hospital_title").text("Додавання нової лікарні");
@@ -21,9 +16,8 @@ async function create_element() {
       case "customer": $("#customer_title").text("Додавання нового замовника");
                        $("#customer_yes").text("Додати");
                        break;
-      case "patient":  $("#patient_title").text("Додавання нового пацієнта");
-                       $("#patient_yes").text("Додати");
-                       prepare_hospitals_for_dropdown(target);
+      case "executor": $("#executor_title").text("Додавання нового виконавця");
+                       $("#executor_yes").text("Додати");
                        break;
 
    }
@@ -57,12 +51,10 @@ async function edit_element (element) {
                        $("#customer_budget").val(item.budget);
                        $("#customer_name").val(item.name);
                        break;
-      case "patient":  item = get_patient_by_id(id);
-                       $("#patient_age").val(item.age);
-                       $("#patient_name").val(item.name);
-                       $("#patient_customer").text(item.customer);
-                       $("#patient_hospital").text(item.hospital);
-                       prepare_hospitals_for_dropdown(target);
+      case "executor": item = get_executor_by_id(id);
+                       $("#executor_employee_count").val(item.employee_count);
+                       $("#executor_name").val(item.name);
+                       $("#executor_experience").val(item.experience);
                        break;
 
    }
@@ -83,10 +75,9 @@ function find_element (element) {
 
    switch (target) {
 
-      case "hospitals":      search_list = find_hospitals(search);      break;
-      case "customers":      search_list = find_customers(search);      break;
-      case "patients":       search_list = find_patients(search);       break;
-      case "cured_patients": search_list = find_patients(search, true); break;
+      case "hospitals": search_list = find_hospitals(search); break;
+      case "customers": search_list = find_customers(search); break;
+      case "executors": search_list = find_executors(search); break;
 
    }
 
@@ -116,14 +107,9 @@ function delete_element (item) {
          button = "Видалити";
          break;
 
-      case "patients":
-         message = "Ви дійсно хочете виписати цього пацієнта";
-         button = "Виписати";
-         break;
-
-      case "cured_patients":
-         message = "Ви дійсно хочете видалити інформацію про цього виписаного пацієнта";
-         button = "Видалити";
+      case "executors":
+         message = "Ви дійсно хочете видалити цього виконавця";
+         button = "видалити";
          break;
 
    }
@@ -149,16 +135,12 @@ function display_data (search_list) {
 
    switch (target) {
 
-      case "hospitals":      data = get_hospitals_list();
-                             break;
-      case "customers":      data = get_customers_list();
-                             break;
-      case "patients":       data = get_patients_list();
-                             additional_attr = "false, ";
-                             break;
-      case "cured_patients": data = get_patients_list(true);
-                             additional_attr = "true, ";
-                             break;
+      case "hospitals": data = get_hospitals_list();
+                        break;
+      case "customers": data = get_customers_list();
+                        break;
+      case "executors": data = get_executors_list();
+                        break;
    }
 
    // Якщо поле пошуку не порожнє - відображаємо результат
@@ -169,9 +151,6 @@ function display_data (search_list) {
 
    // Відображення загальної кількості елементів
    $("#total_count").text(`Загальна кількість: ${data.length}`);
-
-   // Для виписаних та невиписаниї пацієнтів таблиці однакові
-   if (target === "cured_patients") { target = "patients"; }
 
    // Відобразити дані конкретної таблиці
    eval(`display_${target}_data(${additional_attr}data)`);
@@ -217,7 +196,7 @@ function display_customers_data (data) {
 }
 
 // Відобразити дані про усіх пацієнтів
-function display_patients_data (is_cured, data) {
+function display_executors_data (data) {
 
    for (let element of data) {
       
@@ -225,10 +204,9 @@ function display_patients_data (is_cured, data) {
      `<tr>
          <td> <span class="m-2">${element.id}</span> </td>
          <td>${element.name}</td>
-         <td class="fit"> <span class="m-2">${element.age}</span> </td>
-         <td>${element.customer}</td>
-         <td>${element.hospital}</td>
-         <td>${get_icon_code(is_cured)}</td>
+         <td class="fit"> <span class="m-2">${element.employee_count}</span> </td>
+         <td class="fit"> <span class="m-2">${element.experience}</span> </td>
+         <td>${get_icon_code()}</td>
       </tr>`;
 
       $("#table").append(block);
@@ -253,14 +231,6 @@ function modal_confirm() {
          let id = parseInt(src);
          page = page.substr(0, page.length - 1);
          eval(`remove_${page}(${id})`);
-         display_data();
-         save_data();
-         break;
-
-
-      // Видалення усіх даних про виписаних пацієнтів
-      case "delete_cured_patients":
-         cured_patients_list = [];
          display_data();
          save_data();
          break;
@@ -313,37 +283,18 @@ function modal_update_customers (added_new, id) {
 }
 
 // Додавання нового пацієнта або редагування існуючого
-function modal_update_patients (added_new, id) {
+function modal_update_executors (added_new, id) {
 
-   let name     = $("#patient_name").val();
-   let age      = $("#patient_age").val();
-   let customer = $("#patient_customer").text();
-   let hospital = $("#patient_hospital").text();
+   let name           = $("#executor_name").val();
+   let employee_count = $("#executor_employee_count").val();
+   let experience     = $("#executor_experience").val();
 
-   customer = customer === "Виберіть лікаря"  ? "Не призначено"  : customer;
-   hospital = hospital === "Виберіть лікарню" ? "Не встановлено" : hospital;
-
-   if (added_new) { add_patient(name, age, customer, hospital);      }
-   else           { edit_patient(id, name, age, customer, hospital); }
+   if (added_new) { add_executor(name, employee_count, experience);      }
+   else           { edit_executor(id, name, employee_count, experience); }
 
    display_data();
    clear_input();
    save_data();
-
-}
-
-// ...............................................................................................
-
-// Підтвердження видалення виписаних пацієнтів
-function modal_delete_cured_patients() {
-
-   modal_confirm_create("Видалення даних",
-                        "Ви дійсно хочете видалити усі наявні дані про виписаних пацієнтів?",
-                        "Очистити",
-                        "Відміна",
-                        "delete_cured_patients");
-
-   $(`#modal_confirm`).modal('show');
 
 }
 
@@ -358,7 +309,7 @@ function set_hospital (element) {
    hospital = hospital === ". . ." ? "Виберіть лікарню" : hospital;
 
    if (target === "customers") { $("#customer_hospital").text(hospital);  }
-   else                      { $("#patient_hospital").text(hospital);
+   else                      { $("#executor_hospital").text(hospital);
                                prepare_customers_for_dropdown();        }
 
 }
@@ -370,7 +321,7 @@ function set_customer (element) {
 
    customer = customer === ". . ." ? "Виберіть лікаря" : customer;
 
-   $("#patient_customer").text(customer);
+   $("#executor_customer").text(customer);
 
 }
 
@@ -401,10 +352,10 @@ function prepare_hospitals_for_dropdown (target) {
 // Підготовуємо список доступних лікарів у випадаючому меню
 function prepare_customers_for_dropdown() {
 
-   $("#patient_customer").text("Виберіть лікаря");
+   $("#executor_customer").text("Виберіть лікаря");
 
-   let list = $("#patient_customers_list");
-   let hospital = $("#patient_hospital").text();
+   let list = $("#executor_customers_list");
+   let hospital = $("#executor_hospital").text();
    let divider_is_added = false;
 
    // Отримуємо інформацію про усіх лікарів
@@ -438,7 +389,7 @@ function clear_table (table_is_empty) {
 
    let target = location.pathname.substring(1);
    let span = (target === "hospitals") ? 4 :
-              (target === "customers") ? 5 : 6;
+              (target === "customers") ? 4 : 5;
 
    $("#table tbody").empty();
 
@@ -465,12 +416,9 @@ function clear_input() {
       case "customers": $("#customer_name").val("");
                         $("#customer_budget").val("");
                         break;
-      case "patients":  $("#patient_name").val("");
-                        $("#patient_age").val("");
-                        $("#patient_customer").text("Виберіть лікаря");
-                        $("#patient_hospital").text("Виберіть лікарню");
-                        $(`#patient_customers_list`).find("li:not(:first)").remove();
-                        $(`#patient_hospitals_list`).find("li:not(:first)").remove();
+      case "executors": $("#executor_name").val("");
+                        $("#executor_employee_count").val("");
+                        $("#executor_experience").val("");
                         break;
    }
 }
@@ -505,16 +453,6 @@ function get_icon_code (only_delete) {
 }
 
 // ...............................................................................................
-
-// Обмеження вводу для поля "вік"
-function set_age (element) {
-
-   let value = $(element).val();
-   value = value.substring(0, 3);
-   value = (value > 120) ? 120 : value;
-   $(element).val(value);
-
-}
 
 // Метод дозволяє реалізувати затримку
 function delay (time) {

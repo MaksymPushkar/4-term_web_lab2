@@ -109,7 +109,8 @@ function find_customers (search) {
 
     for (let customer of customers_list) {
 
-        let attributes = [ customer.name ];
+        let attributes = [ customer.name,
+                           customer.budget ];
 
         for (let attr of attributes) {
 
@@ -126,7 +127,7 @@ function find_customers (search) {
 // ...............................................................................................
 
 // Вивести в консоль список замовників
-function print_customers_list() {
+function print_customers_list () {
 
     console.log("\n" + "Список усіх замовників:");
 

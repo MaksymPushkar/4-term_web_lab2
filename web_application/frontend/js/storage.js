@@ -70,8 +70,7 @@ async function server_PUT (req, array) {
    switch (req) {
       case "/set_hospitals":      collection = 1; break;
       case "/set_customers":      collection = 2; break;
-      case "/set_patients":       collection = 3; break;
-      case "/set_cured_patients": collection = 4; break;
+      case "/set_executors":       collection = 3; break;
       case "/set_identificators": collection = 5; break;
    }
    
@@ -145,20 +144,15 @@ function save_data_in_local_storage() {
          localStorage.setItem('customers', JSON.stringify(get_customers_list()));
          break;
 
-      case "patients":
-         localStorage.setItem('patients', JSON.stringify(get_patients_list()));
-         localStorage.setItem('cured_patients', JSON.stringify(get_patients_list(true)));
-         break;
-
-      case "cured_patients":
-         localStorage.setItem('cured_patients', JSON.stringify(get_patients_list(true)));
+      case "executors":
+         localStorage.setItem('executors', JSON.stringify(get_executors_list()));
          break;
 
    }
 
    let identificators = [{ "name":"last_hospital_id","value":last_hospital_id },
                          { "name":"last_customer_id","value":last_customer_id },
-                         { "name":"last_patient_id" ,"value":last_patient_id  }];
+                         { "name":"last_executor_id","value":last_executor_id }];
 
    localStorage.setItem('identificators', JSON.stringify(identificators));
 
@@ -179,20 +173,19 @@ function save_data_in_data_base() {
          server_PUT("/set_customers", get_customers_list());
          break;
 
-      case "patients":
-         server_PUT("/set_patients", get_patients_list());
-         server_PUT("/set_cured_patients", get_patients_list(true));
+      case "executors":
+         server_PUT("/set_executors", get_executors_list());
          break;
 
-      case "cured_patients":
-         server_PUT("/set_cured_patients", get_patients_list(true));
+      case "cured_executors":
+         server_PUT("/set_cured_executors", get_executors_list(true));
          break;
 
    }
 
    let identificators = [{ "name":"last_hospital_id","value":last_hospital_id },
                          { "name":"last_customer_id","value":last_customer_id },
-                         { "name":"last_patient_id", "value":last_patient_id  }];
+                         { "name":"last_executor_id","value":last_executor_id }];
 
    server_PUT("/set_identificators", identificators);
 
@@ -226,16 +219,9 @@ async function load_data_from_local_storage() {
          set_customers_list(item ? item : []);
          break;
 
-      case "patients":
-         item = JSON.parse(localStorage.getItem("patients"));
-         set_patients_list(item ? item : []);
-         item = JSON.parse(localStorage.getItem("cured_patients"));
-         set_patients_list(item ? item : [], true);
-         break;
-
-      case "cured_patients":
-         item = JSON.parse(localStorage.getItem("cured_patients"));
-         set_patients_list(item ? item : [], true);
+      case "executors":
+         item = JSON.parse(localStorage.getItem("executors"));
+         set_executors_list(item ? item : []);
          break;
 
    }
@@ -246,7 +232,7 @@ async function load_data_from_local_storage() {
    for (let item of identificators) {
       if (item.name === "last_hospital_id") { last_hospital_id = item.value; }
       if (item.name === "last_customer_id") { last_customer_id = item.value; }
-      if (item.name === "last_patient_id")  { last_patient_id  = item.value; }
+      if (item.name === "last_executor_id")  { last_executor_id  = item.value; }
    }
 }
 
@@ -267,16 +253,9 @@ async function load_data_from_data_base() {
             { set_customers_list(res); });
          break;
 
-      case "patients":
-         await server_GET("/get_patients").then((res) =>
-            { set_patients_list(res); });
-         await server_GET("/get_cured_patients").then((res) =>
-            { set_patients_list(res, true); });
-         break;
-
-      case "cured_patients":
-         await server_GET("/get_cured_patients").then((res) =>
-            { set_patients_list(res, true); });
+      case "executors":
+         await server_GET("/get_executors").then((res) =>
+            { set_executors_list(res); });
          break;
 
    }
@@ -287,8 +266,8 @@ async function load_data_from_data_base() {
    await server_GET("/get_last_customer_id").then((res) =>
       { if (res && res.length > 0) { last_customer_id = res[0].value; }});
 
-   await server_GET("/get_last_patient_id").then((res) =>
-      { if (res && res.length > 0) { last_patient_id = res[0].value; }});
+   await server_GET("/get_last_executor_id").then((res) =>
+      { if (res && res.length > 0) { last_executor_id = res[0].value; }});
 
 }
 

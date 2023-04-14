@@ -71,17 +71,17 @@ exp.get("/customers", (req, res) => {
 });
 
 // ... для сторінки "Пацієнти"
-exp.get("/patients", (req, res) => {
-  res.render("pages/patients", { title: "Пацієнти",
-                                 use_db: USE_DB,
-                                 server_port: SERVER_PORT,
-                                 add_button: "Додати нового пацієнта",
-                                 page_id: "3" });
+exp.get("/executors", (req, res) => {
+  res.render("pages/executors", { title: "Виконаці",
+                                  use_db: USE_DB,
+                                  server_port: SERVER_PORT,
+                                  add_button: "Додати нового виконаця",
+                                  page_id: "3" });
 });
 
 // ... для сторінки "Виписані пацієнти"
-exp.get("/cured_patients", (req, res) => {
-  res.render("pages/cured_patients", { title: "Виписані пацієнти",
+exp.get("/cured_executors", (req, res) => {
+  res.render("pages/cured_executors", { title: "Виписані пацієнти",
                                        use_db: USE_DB,
                                        server_port: SERVER_PORT,
                                        add_button: "Очистити дані",
