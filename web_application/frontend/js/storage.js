@@ -68,7 +68,7 @@ async function server_PUT (req, array) {
    let collection;
 
    switch (req) {
-      case "/set_hospitals":      collection = 1; break;
+      case "/set_projects":      collection = 1; break;
       case "/set_customers":      collection = 2; break;
       case "/set_executors":       collection = 3; break;
       case "/set_identificators": collection = 5; break;
@@ -136,8 +136,8 @@ function save_data_in_local_storage() {
 
    switch (target) {
 
-      case "hospitals":
-         localStorage.setItem('hospitals', JSON.stringify(get_hospitals_list()));
+      case "projects":
+         localStorage.setItem('projects', JSON.stringify(get_projects_list()));
          break;
 
       case "customers":
@@ -150,7 +150,7 @@ function save_data_in_local_storage() {
 
    }
 
-   let identificators = [{ "name":"last_hospital_id","value":last_hospital_id },
+   let identificators = [{ "name":"last_project_id","value":last_project_id },
                          { "name":"last_customer_id","value":last_customer_id },
                          { "name":"last_executor_id","value":last_executor_id }];
 
@@ -165,8 +165,8 @@ function save_data_in_data_base() {
 
    switch (target) {
 
-      case "hospitals":
-         server_PUT("/set_hospitals", get_hospitals_list());
+      case "projects":
+         server_PUT("/set_projects", get_projects_list());
          break;
 
       case "customers":
@@ -183,7 +183,7 @@ function save_data_in_data_base() {
 
    }
 
-   let identificators = [{ "name":"last_hospital_id","value":last_hospital_id },
+   let identificators = [{ "name":"last_project_id","value":last_project_id },
                          { "name":"last_customer_id","value":last_customer_id },
                          { "name":"last_executor_id","value":last_executor_id }];
 
@@ -209,9 +209,9 @@ async function load_data_from_local_storage() {
 
    switch (target) {
 
-      case "hospitals":
-         item = JSON.parse(localStorage.getItem("hospitals"));
-         set_hospitals_list(item ? item : []);
+      case "projects":
+         item = JSON.parse(localStorage.getItem("projects"));
+         set_projects_list(item ? item : []);
          break;
 
       case "customers":
@@ -230,7 +230,7 @@ async function load_data_from_local_storage() {
    if (!identificators) { identificators = []; }
 
    for (let item of identificators) {
-      if (item.name === "last_hospital_id") { last_hospital_id = item.value; }
+      if (item.name === "last_project_id") { last_project_id = item.value; }
       if (item.name === "last_customer_id") { last_customer_id = item.value; }
       if (item.name === "last_executor_id")  { last_executor_id  = item.value; }
    }
@@ -243,9 +243,9 @@ async function load_data_from_data_base() {
 
    switch (target) {
 
-      case "hospitals":
-         await server_GET("/get_hospitals").then((res) =>
-            { set_hospitals_list(res); });
+      case "projects":
+         await server_GET("/get_projects").then((res) =>
+            { set_projects_list(res); });
          break;
 
       case "customers":
@@ -260,8 +260,8 @@ async function load_data_from_data_base() {
 
    }
 
-   await server_GET("/get_last_hospital_id").then((res) =>
-      { if (res && res.length > 0) { last_hospital_id = res[0].value; }});
+   await server_GET("/get_last_project_id").then((res) =>
+      { if (res && res.length > 0) { last_project_id = res[0].value; }});
 
    await server_GET("/get_last_customer_id").then((res) =>
       { if (res && res.length > 0) { last_customer_id = res[0].value; }});

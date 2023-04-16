@@ -53,11 +53,11 @@ exp.get(["/", "/index"], (req, res) => {
 });
 
 // ... для сторінки "Лікарні"
-exp.get("/hospitals", (req, res) => {
-  res.render("pages/hospitals", { title: "Лікарні",
+exp.get("/projects", (req, res) => {
+  res.render("pages/projects", { title: "Проєкти",
                                   use_db: USE_DB,
                                   server_port: SERVER_PORT,
-                                  add_button: "Додати нову лікарню",
+                                  add_button: "Додати новий проєкт",
                                   page_id: "1" });
 });
 

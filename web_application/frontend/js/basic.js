@@ -10,8 +10,10 @@ async function create_element() {
 
    switch (target) {
 
-      case "hospital": $("#hospital_title").text("Додавання нової лікарні");
-                       $("#hospital_yes").text("Додати");
+      case "project":  $("#project_title").text("Додавання нового проєкту");
+                       $("#project_yes").text("Додати");
+                       prepare_customers_for_dropdown();
+                       prepare_executors_for_dropdown();
                        break;
       case "customer": $("#customer_title").text("Додавання нового замовника");
                        $("#customer_yes").text("Додати");
@@ -43,9 +45,9 @@ async function edit_element (element) {
 
    switch (target) {
 
-      case "hospital": item = get_hospital_by_id(id);
-                       $("#hospital_name").val(item.name);
-                       $("#hospital_address").val(item.address);
+      case "project": item = get_project_by_id(id);
+                       $("#project_name").val(item.name);
+                       $("#project_address").val(item.address);
                        break;
       case "customer": item = get_customer_by_id(id);
                        $("#customer_budget").val(item.budget);
@@ -75,7 +77,7 @@ function find_element (element) {
 
    switch (target) {
 
-      case "hospitals": search_list = find_hospitals(search); break;
+      case "projects": search_list = find_projects(search); break;
       case "customers": search_list = find_customers(search); break;
       case "executors": search_list = find_executors(search); break;
 
@@ -97,8 +99,8 @@ function delete_element (item) {
 
    switch (target) {
 
-      case "hospitals":
-         message = "Ви дійсно хочете видалити інформацію про цю лікарню";
+      case "projects":
+         message = "Ви дійсно хочете видалити цей проєкт";
          button = "Видалити";
          break;
 
@@ -135,7 +137,7 @@ function display_data (search_list) {
 
    switch (target) {
 
-      case "hospitals": data = get_hospitals_list();
+      case "projects": data = get_projects_list();
                         break;
       case "customers": data = get_customers_list();
                         break;
@@ -160,7 +162,7 @@ function display_data (search_list) {
 // ...............................................................................................
 
 // Відобразити дані про усі лікарні
-function display_hospitals_data (data) {
+function display_projects_data (data) {
 
    for (let element of data) {
    
@@ -168,7 +170,8 @@ function display_hospitals_data (data) {
      `<tr>
          <td> <span class="m-2">${element.id}</span> </td>
          <td>${element.name}</td>
-         <td>${element.address}</td>
+         <td>${element.customer}</td>
+         <td>${element.executor}</td>
          <td>${get_icon_code()}</td>
       </tr>`;
 
@@ -253,13 +256,17 @@ function modal_confirm_create (title, message, yes, no, target, src) {
 // ...............................................................................................
 
 // Додавання нової лікарні або редагування існуючої
-function modal_update_hospitals (added_new, id) {
+function modal_update_projects (added_new, id) {
 
-   let name    = $("#hospital_name").val();
-   let address = $("#hospital_address").val();
+   let name     = $("#project_name").val();
+   let customer = $("#project_customer").text();
+   let executor = $("#project_executor").text();
 
-   if (added_new) { add_hospital(name, address);      }
-   else           { edit_hospital(id, name, address); }
+   customer = customer === "Виберіть замовника" ? "Не встановлено" : customer;
+   executor = executor === "Виберіть виконавця" ? "Не встановлено" : executor;
+
+   if (added_new) { add_project(name, customer, executor);      }
+   else           { edit_project(id, name, customer, executor); }
 
    display_data();
    clear_input();
@@ -301,16 +308,13 @@ function modal_update_executors (added_new, id) {
 // ...............................................................................................
 
 // Вибір лікарні у випадаючому списку
-function set_hospital (element) {
+function set_executor (element) {
 
-   let hospital = $(element).text();
-   let target = location.pathname.substring(1);
+   let executor = $(element).text();
 
-   hospital = hospital === ". . ." ? "Виберіть лікарню" : hospital;
+   executor = executor === ". . ." ? "Виберіть виконавця" : executor;
 
-   if (target === "customers") { $("#customer_hospital").text(hospital);  }
-   else                      { $("#executor_hospital").text(hospital);
-                               prepare_customers_for_dropdown();        }
+   $("#project_executor").text(executor);
 
 }
 
@@ -319,21 +323,21 @@ function set_customer (element) {
 
    let customer = $(element).text();
 
-   customer = customer === ". . ." ? "Виберіть лікаря" : customer;
+   customer = customer === ". . ." ? "Виберіть замовника" : customer;
 
-   $("#executor_customer").text(customer);
+   $("#project_customer").text(customer);
 
 }
 
 // ...............................................................................................
 
 // Підготовуємо список доступних лікарень у випадаючому меню
-function prepare_hospitals_for_dropdown (target) {
+function prepare_executors_for_dropdown() {
 
-   let list = $(`#${target}_hospitals_list`);
+   let list = $("#project_executors_list");
 
-   // Отримуємо інформацію про усі лікарні
-   get_data("hospitals").then((result) => {
+   // Отримуємо інформацію про усіх лікарів
+   get_data("executors").then((result) => {
 
       if (result.length != 0) {
          
@@ -341,8 +345,9 @@ function prepare_hospitals_for_dropdown (target) {
          list.append(divider);
 
          for (let item of result) {
-            list.append(`<li><span class="dropdown-item" ` +
-                        `onclick="set_hospital(this)">${item.name}</span></li>`);
+
+               list.append(`<li><span class="dropdown-item" ` +
+                           `onclick="set_executor(this)">${item.name}</span></li>`);
          }
       }
 
@@ -352,11 +357,7 @@ function prepare_hospitals_for_dropdown (target) {
 // Підготовуємо список доступних лікарів у випадаючому меню
 function prepare_customers_for_dropdown() {
 
-   $("#executor_customer").text("Виберіть лікаря");
-
-   let list = $("#executor_customers_list");
-   let hospital = $("#executor_hospital").text();
-   let divider_is_added = false;
+   let list = $("#project_customers_list");
 
    // Отримуємо інформацію про усіх лікарів
    get_data("customers").then((result) => {
@@ -364,17 +365,12 @@ function prepare_customers_for_dropdown() {
       if (result.length != 0) {
          
          list.find("li:not(:first)").remove();
+         list.append(divider);
 
          for (let item of result) {
 
-            if (item.hospital === hospital) {
-
-               if (!divider_is_added) { list.append(divider);
-                                        divider_is_added = true; }
-
                list.append(`<li><span class="dropdown-item" ` +
                            `onclick="set_customer(this)">${item.name}</span></li>`);
-            }
          }
       }
 
@@ -388,7 +384,7 @@ function prepare_customers_for_dropdown() {
 function clear_table (table_is_empty) {
 
    let target = location.pathname.substring(1);
-   let span = (target === "hospitals") ? 4 :
+   let span = (target === "projects") ? 5 :
               (target === "customers") ? 4 : 5;
 
    $("#table tbody").empty();
@@ -410,8 +406,9 @@ function clear_input() {
 
    switch (target) {
       
-      case "hospitals": $("#hospital_name").val("");
-                        $("#hospital_address").val("");
+      case "projects":  $("#project_name").val("");
+                        $("#project_customer").text("Виберіть замовника");
+                        $("#project_executor").text("Виберіть виконавця");
                         break;
       case "customers": $("#customer_name").val("");
                         $("#customer_budget").val("");
