@@ -45,9 +45,11 @@ async function edit_element (element) {
 
    switch (target) {
 
-      case "project": item = get_project_by_id(id);
+      case "project":  item = get_project_by_id(id);
                        $("#project_name").val(item.name);
                        $("#project_address").val(item.address);
+                       prepare_customers_for_dropdown();
+                       prepare_executors_for_dropdown();
                        break;
       case "customer": item = get_customer_by_id(id);
                        $("#customer_budget").val(item.budget);
@@ -77,7 +79,7 @@ function find_element (element) {
 
    switch (target) {
 
-      case "projects": search_list = find_projects(search); break;
+      case "projects":  search_list = find_projects(search);  break;
       case "customers": search_list = find_customers(search); break;
       case "executors": search_list = find_executors(search); break;
 
@@ -181,7 +183,7 @@ function display_projects_data (data) {
 }
 
 // Відобразити дані про усіх лікарів
-function display_customers_data (data) {
+async function display_customers_data (data) {
 
    for (let element of data) {
       
@@ -190,16 +192,19 @@ function display_customers_data (data) {
          <td> <span class="m-2">${element.id}</span> </td>
          <td>${element.name}</td>
          <td> <span class="m-2">${element.budget}</span> </td>
+         <td>${await prepare_related_projects_of("customer", element.name)}</td>
          <td>${get_icon_code()}</td>
       </tr>`;
 
       $("#table").append(block);
 
+      console.log(block);
+
    }
 }
 
 // Відобразити дані про усіх пацієнтів
-function display_executors_data (data) {
+async function display_executors_data (data) {
 
    for (let element of data) {
       
@@ -209,6 +214,7 @@ function display_executors_data (data) {
          <td>${element.name}</td>
          <td class="fit"> <span class="m-2">${element.employee_count}</span> </td>
          <td class="fit"> <span class="m-2">${element.experience}</span> </td>
+         <td>${await prepare_related_projects_of("executor", element.name)}</td>
          <td>${get_icon_code()}</td>
       </tr>`;
 
@@ -377,6 +383,29 @@ function prepare_customers_for_dropdown() {
    });
 }
 
+async function prepare_related_projects_of(target, name) {
+
+   let list = "";
+
+   // Отримуємо інформацію про усіх лікарів
+   await get_data("projects").then((result) => {
+      
+      if (result.length != 0) {
+         
+         for (let item of result) {
+            
+            if (item[target] === name) {
+               
+               list += `<li>${item.name}</li>`;
+            }
+         }
+      }
+
+   });
+
+   return list;
+}
+
 // ...............................................................................................
 
 // Видалення усіх даних з таблиці 
@@ -385,7 +414,7 @@ function clear_table (table_is_empty) {
 
    let target = location.pathname.substring(1);
    let span = (target === "projects") ? 5 :
-              (target === "customers") ? 4 : 5;
+              (target === "customers") ? 5 : 5;
 
    $("#table tbody").empty();
 

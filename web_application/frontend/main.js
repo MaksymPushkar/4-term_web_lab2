@@ -72,10 +72,10 @@ exp.get("/customers", (req, res) => {
 
 // ... для сторінки "Пацієнти"
 exp.get("/executors", (req, res) => {
-  res.render("pages/executors", { title: "Виконаці",
+  res.render("pages/executors", { title: "Виконавці",
                                   use_db: USE_DB,
                                   server_port: SERVER_PORT,
-                                  add_button: "Додати нового виконаця",
+                                  add_button: "Додати нового виконавця",
                                   page_id: "3" });
 });
 
