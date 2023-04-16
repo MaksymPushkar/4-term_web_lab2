@@ -198,8 +198,6 @@ async function display_customers_data (data) {
 
       $("#table").append(block);
 
-      console.log(block);
-
    }
 }
 

@@ -110,7 +110,7 @@ function edit_executor (id, new_name, new_employee_count, new_experience) {
 
 // Знайти лікаря в колекції
 function find_executors (search) {
-    console.log("i'm work");
+    
     let result = [];
     search = search.toLowerCase();
 
