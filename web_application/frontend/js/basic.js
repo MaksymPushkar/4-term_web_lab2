@@ -388,13 +388,13 @@ async function prepare_related_projects_of(target, name) {
    // Отримуємо інформацію про усіх лікарів
    await get_data("projects").then((result) => {
       
-      if (result.length != 0) {
+      if (result !== null && result.length !== 0) {
          
          for (let item of result) {
             
             if (item[target] === name) {
                
-               list += `<li>${item.name}</li>`;
+               list += `<li style="margin-left: 10px">${item.name}</li>`;
             }
          }
       }
@@ -412,7 +412,7 @@ function clear_table (table_is_empty) {
 
    let target = location.pathname.substring(1);
    let span = (target === "projects") ? 5 :
-              (target === "customers") ? 5 : 5;
+              (target === "customers") ? 5 : 6;
 
    $("#table tbody").empty();
 
