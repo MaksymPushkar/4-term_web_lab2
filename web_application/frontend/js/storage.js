@@ -18,13 +18,12 @@ function get_server_port()
 async function server_GET (req) {
 
    try {
-      
-   const res = await fetch(server_url + req,
-                           { method: "GET",
-                             headers: { "Accept": "application/json" } });
+      const res = await fetch(server_url + req,
+                              { method: "GET",
+                              headers: { "Accept": "application/json" } });
 
-   if (res.ok) { return res.json(); }
-   else { throw new Error(); }
+      if (res.ok) { return await res.json(); }
+      else { throw new Error(); }
 
    }
 
@@ -68,10 +67,10 @@ async function server_PUT (req, array) {
    let collection;
 
    switch (req) {
-      case "/set_projects":      collection = 1; break;
+      case "/set_projects":       collection = 1; break;
       case "/set_customers":      collection = 2; break;
-      case "/set_executors":       collection = 3; break;
-      case "/set_identificators": collection = 5; break;
+      case "/set_executors":      collection = 3; break;
+      case "/set_identificators": collection = 4; break;
    }
    
    const res = await fetch(server_url + req,
@@ -82,7 +81,7 @@ async function server_PUT (req, array) {
                                                     collection: collection }) }
                              );
    
-   if (res.ok) { return res.json(); }
+   if (res.ok) { return await res.json(); }
    else { throw new Error(); }
    
    }
